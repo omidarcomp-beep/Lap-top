@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OMIDAR | Laptop Assets</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#121824; --text:#e9eef6; --muted:#a9b4c4; --line:rgba(255,255,255,.08);
+      --accent:#6bb56b;
+    }
+    body{ margin:0; font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+      background: radial-gradient(1200px 600px at 70% -10%, rgba(107,181,107,.18), transparent 60%),
+                  radial-gradient(900px 500px at 10% 10%, rgba(255,255,255,.06), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    .wrap{ max-width:1000px; margin:0 auto; padding:28px 16px 48px; }
+    .top{
+      display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+      border:1px solid var(--line); background:rgba(18,24,36,.75); border-radius:18px; padding:14px 16px;
+      backdrop-filter: blur(8px);
+    }
+    .brand{ display:flex; gap:12px; align-items:center; }
+    .brand img{ width:56px; height:56px; border-radius:14px; object-fit:cover; border:1px solid var(--line); background:#fff; }
+    h1{ margin:0; font-size:18px; }
+    p{ margin:2px 0 0; color:var(--muted); font-size:13px; }
+    .search{ display:flex; gap:10px; align-items:center; }
+    input{
+      width:min(420px, 80vw);
+      padding:10px 12px; border-radius:12px;
+      border:1px solid var(--line); outline:none;
+      background:rgba(255,255,255,.04); color:var(--text);
+      font-size:13px;
+    }
+    .grid{ margin-top:14px; display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; }
+    @media (max-width: 980px){ .grid{ grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width: 640px){ .grid{ grid-template-columns: 1fr;} }
+    .card{
+      border:1px solid var(--line); background:rgba(18,24,36,.75); border-radius:18px; padding:16px;
+    }
+    .row{ display:flex; justify-content:space-between; gap:10px; align-items:center; }
+    .chip{ border:1px solid rgba(107,181,107,.35); background:rgba(107,181,107,.12); color:#cfeecf; padding:6px 10px; border-radius:999px; font-size:12px; }
+    .muted{ color:var(--muted); font-size:13px; margin-top:6px;}
+    a{ color:var(--text); text-decoration:none; }
+    .btn{
+      margin-top:12px; display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:12px; border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+    }
+    .btn:hover{ border-color: rgba(107,181,107,.35); }
+    code{ background: rgba(255,255,255,.06); padding:2px 6px; border-radius:8px; }
+    .note{ margin-top:14px; color:var(--muted); font-size:12px; line-height:1.7; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <img src="./img/omidar.jpg" alt="OMIDAR logo">
+        <div>
+          <h1>OMIDAR | إدارة لابتوبات الموظفين (QR)</h1>
+          <p>ابحث بـ: الاسم / username / Asset ID / موديل / Serial</p>
+        </div>
+      </div>
+      <div class="search">
+        <input id="q" placeholder="بحث..." oninput="render()">
+      </div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="note">
+      ✅ السيرش بيشمل: <code>employee_name</code> + <code>username</code> + <code>asset_id</code> + باقي المواصفات.<br>
+      ⚠️ لا تضع كلمات مرور داخل QR أو GitHub.
+    </div>
+  </div>
+
+<script>
+let data = [];
+
+fetch('./data.json')
+  .then(r => r.json())
+  .then(d => { data = d; render(); })
+  .catch(() => {
+    document.getElementById('grid').innerHTML =
+      '<div class="muted">لا يمكن قراءة data.json. افتح الموقع من خلال Local Server (ليس Double Click).</div>';
+  });
+
+function render(){
+  const q = (document.getElementById('q').value || '').toLowerCase().trim();
+
+  const items = data.filter(x => {
+    const hay = `
+      ${x.asset_id || ""} ${x.employee_name || ""} ${x.username || ""}
+      ${x.company || ""} ${x.brand || ""} ${x.model || ""} ${x.cpu || ""}
+      ${x.ram || ""} ${x.storage || ""} ${x.serial || ""} ${x.status || ""} ${x.notes || ""}
+    `.toLowerCase();
+    return hay.includes(q);
+  });
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = items.map(x => `
+    <div class="card">
+      <div class="row">
+        <div>
+          <div style="font-weight:700;font-size:14px">${x.employee_name || "-"}</div>
+          <div class="muted">username: <code>${x.username || "-"}</code></div>
+          <div class="muted">Asset ID: <code>${x.asset_id || "-"}</code></div>
+        </div>
+        <div class="chip">${x.status || '—'}</div>
+      </div>
+      <div class="muted" style="margin-top:10px">${x.brand || ""} — ${x.model || ""}</div>
+      <div class="muted">${x.cpu || ""} • RAM ${x.ram || ""} • ${x.storage || ""}</div>
+      <a class="btn" href="./assets/${x.asset_id}.html">فتح صفحة الجهاز</a>
+    </div>
+  `).join('') || `<div class="muted">لا توجد نتائج.</div>`;
+}
+</script>
+</body>
+</html>

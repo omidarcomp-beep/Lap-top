@@ -1,0 +1,18 @@
+[
+  {
+    "asset_id": "OM-001",
+    "employee_name": "Ahmed Mahmoud",
+    "username": "ahmed.mahmoud",
+    "company": "OMIDAR",
+    "brand": "Dell",
+    "model": "E5470",
+    "cpu": "Intel Core i5-6300HQ",
+    "screen": "14 inch",
+    "ram": "8 GB",
+    "storage": "256 GB M.2",
+    "serial": "",
+    "delivery_date": "2025-12-27",
+    "status": "Active",
+    "notes": "omidar"
+  }
+]
